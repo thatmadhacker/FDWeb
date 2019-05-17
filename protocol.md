@@ -20,7 +20,7 @@ The checksum requests are setup like this:
 ```
 Length:5
 Version:1.0
-ReqType:checksum
+ReqType:CHECKSUM
 Encoding:base64
 Site:<base of url ex: thatmadhacker.org>
 Page:<page of url without the domain at the front ex: /index.html>

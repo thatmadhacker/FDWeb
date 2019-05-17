@@ -27,7 +27,7 @@ public class FDWeb {
 		if (domainCacheFolder.exists()) {
 			// Using cached checksum (and possibly cached page)
 
-			File checksumFile = new File(cacheFolder, domain + ".sum");
+			File checksumFile = new File(domainCacheFolder, page + ".sum");
 
 			if (checksumFile.exists()) {
 
@@ -82,7 +82,7 @@ public class FDWeb {
 
 		out.println("Length:5");
 		out.println("Version:1.0");
-		out.println("ReqType:checksum");
+		out.println("ReqType:CHECKSUM");
 		out.println("Encoding:base64");
 		out.println("Site:" + domain);
 		out.println("Page:" + page);
@@ -106,7 +106,7 @@ public class FDWeb {
 
 		Page.PageStatus status = Page.PageStatus.valueOf(responseData[4]);
 		if (status.equals(Page.PageStatus.SUCCESS)) {
-			length = Integer.valueOf(responseData[5]);
+			length = Integer.valueOf(responseData[5].split(":")[1]);
 			String checksum = "";
 			for (int i = 6; i < length + 6; i++) {
 				checksum += "\n" + responseData[i];
@@ -139,7 +139,7 @@ public class FDWeb {
 				out.println("Page:" + page);
 				out.println("ContentLen:0");
 
-				int length = Integer.valueOf(in.nextLine());
+				int length = Integer.valueOf(in.nextLine().split(":")[1]);
 				
 				String[] response = new String[length];
 				
@@ -149,7 +149,7 @@ public class FDWeb {
 				
 				Page.PageStatus status = Page.PageStatus.valueOf(response[4]);
 				if(status.equals(Page.PageStatus.SUCCESS)) {
-					length = Integer.valueOf(response[5]);
+					length = Integer.valueOf(response[5].split(":")[1]);
 					
 					String[] pageData = new String[length];
 					
@@ -190,6 +190,8 @@ public class FDWeb {
 						pageCacheFile.createNewFile();
 						
 						out = new PrintWriter(new FileWriter(pageCacheFile,true));
+						
+						out.println(""+(System.currentTimeMillis()+expiryMS));
 						
 						for(String s1 : pageL) {
 							out.println(s1);
