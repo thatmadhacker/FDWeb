@@ -72,10 +72,10 @@ public class PeerServer extends Thread{
 				
 				String reqType = request[1];
 				
+				String domain = request[3];
+				String page = request[4];
+				
 				if(reqType.equalsIgnoreCase("GET") || reqType.equalsIgnoreCase("POST")) {
-					
-					String domain = request[3];
-					String page = request[4];
 					
 					if(domain.contains("../") || domain.startsWith("/") || page.contains("../") || page.startsWith("/")) {
 						
@@ -121,7 +121,7 @@ public class PeerServer extends Thread{
 					
 					long expiryTime = Long.valueOf(lines.get(0));
 					
-					if(System.currentTimeMillis() > expiryTime) {
+					if(System.currentTimeMillis() > expiryTime && expiryTime != -1) {
 						pageCacheFile.delete();
 						out.println("Length:6");
 						out.println("Version:1.0");
@@ -156,9 +156,6 @@ public class PeerServer extends Thread{
 					return;
 					
 				}else if(reqType.equalsIgnoreCase("CHECKSUM")) {
-					
-					String domain = request[3];
-					String page = request[4];
 					
 					if(domain.contains("../") || domain.startsWith("/") || page.contains("../") || page.startsWith("/")) {
 						
@@ -201,6 +198,19 @@ public class PeerServer extends Thread{
 					out.close();
 					return;
 				}
+				
+				out.println("Length:6");
+				out.println("Version:1.0");
+				out.println("Encoding:base64");
+				out.println("Site:"+domain);
+				out.println("Page:"+page);
+				out.println("Status:BAD_REQUEST");
+				out.println("ContentLen:0");
+				
+				in.close();
+				s.close();
+				out.close();
+				return;
 				
 			}catch(Exception e) {
 				e.printStackTrace();

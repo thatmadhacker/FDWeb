@@ -35,7 +35,7 @@ Version:1.0
 Encoding:base64
 Site:<echo of the page's domain>
 Page:<echo of the page that was requested>
-Status:<status, one of these: NOT_FOUND, REDIRECT, FAILED_UNKNOWN, PEER_ERROR, SUCCESS>
+Status:<status, one of these: NOT_FOUND, REDIRECT, FAILED_UNKNOWN, PEER_ERROR, SUCCESS,BAD_REQUEST>
 ContentLen:<Page content length in lines>
 <Page content>
 ```

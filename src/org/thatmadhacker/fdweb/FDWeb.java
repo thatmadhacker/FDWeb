@@ -56,6 +56,18 @@ public class FDWeb {
 						}
 
 						in.close();
+						
+						String[] pageArray = new String[pageLines.size()];
+						
+						for(int i = 0; i < pageLines.size(); i++) {
+							pageArray[i] = pageLines.get(i);
+						}
+						
+						String actualChecksum = getChecksum(pageArray);
+						
+						if(!actualChecksum.equals(checksum)) {
+							throw new Exception("Cached page and cached checksum do not match!!");
+						}
 
 						Page retVal = new Page(pageLines, Page.PageStatus.SUCCESS_CACHED);
 

@@ -13,6 +13,7 @@ public class Page {
 		FAILED_UNKNOWN,
 		PEER_ERROR,
 		CLIENT_ERROR,
+		BAD_REQUEST,
 		SUCCESS,
 		SUCCESS_CACHED;
 	}
