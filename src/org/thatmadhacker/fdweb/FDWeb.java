@@ -11,8 +11,7 @@ import java.util.Scanner;
 
 public class FDWeb {
 
-	@SuppressWarnings("resource")
-	public static Page requestPage(String url, Network network, File cacheFolder, boolean cache, long expiryMS)
+	public static Page requestPage(String url, Network network, File cacheFolder, boolean cache, long expiryMS, boolean useCached)
 			throws Exception {
 
 		if (network.getPeers().size() == 0) {
@@ -24,7 +23,7 @@ public class FDWeb {
 
 		File domainCacheFolder = new File(cacheFolder, domain);
 
-		if (domainCacheFolder.exists()) {
+		if (domainCacheFolder.exists() && useCached) {
 			// Using cached checksum (and possibly cached page)
 
 			File checksumFile = new File(domainCacheFolder, page + ".sum");
@@ -44,9 +43,8 @@ public class FDWeb {
 				if (pageFile.exists()) {
 					// Page is cached
 
-					in = new Scanner(pageFile);
-					long expiryDate = Long.valueOf(in.nextLine());
-					if (expiryDate > System.currentTimeMillis()) {
+					if (pageFile.lastModified()+expiryMS > System.currentTimeMillis() && expiryMS != -1) {
+						in.close();
 						pageFile.delete();
 					} else {
 
@@ -69,7 +67,7 @@ public class FDWeb {
 							throw new Exception("Cached page and cached checksum do not match!!");
 						}
 
-						Page retVal = new Page(pageLines, Page.PageStatus.SUCCESS_CACHED);
+						Page retVal = new Page(pageLines, Page.PageStatus.SUCCESS_CACHED,Page.Encoding.ASCII);
 
 						return retVal;
 					}
@@ -111,21 +109,22 @@ public class FDWeb {
 
 		response = response.replaceFirst("\n", "");
 
-		in.close();
-		s.close();
-
 		String[] responseData = response.split("\n");
 
-		Page.PageStatus status = Page.PageStatus.valueOf(responseData[4]);
+		Page.PageStatus status = Page.PageStatus.valueOf(responseData[4].split(":")[1]);
 		if (status.equals(Page.PageStatus.SUCCESS)) {
-			length = Integer.valueOf(responseData[5].split(":")[1]);
+			length = Integer.valueOf(responseData[6].split(":")[1]);
 			String checksum = "";
 			for (int i = 6; i < length + 6; i++) {
-				checksum += "\n" + responseData[i];
+				checksum += "\n" + in.nextLine();
 			}
 			checksum = checksum.replaceFirst("\n", "");
+			in.close();
+			s.close();
 			return reqPage(domain, page, network, cacheFolder, cache, expiryMS, checksum);
 		} else {
+			in.close();
+			s.close();
 			throw new Exception("Failed to get page checksum due to " + status.toString());
 		}
 
@@ -159,16 +158,31 @@ public class FDWeb {
 					response[i] = in.nextLine();
 				}
 				
-				Page.PageStatus status = Page.PageStatus.valueOf(response[4]);
+				Page.PageStatus status = Page.PageStatus.valueOf(response[4].split(":")[1]);
 				if(status.equals(Page.PageStatus.SUCCESS)) {
-					length = Integer.valueOf(response[5].split(":")[1]);
+					length = Integer.valueOf(response[6].split(":")[1]);
+					
+					Page.PageType type = Page.PageType.valueOf(response[5].split(":")[1]);
 					
 					String[] pageData = new String[length];
 					
 					for(int i = 0; i < length; i++) {
 						
-						pageData[i] = response[i+6];
+						pageData[i] = in.nextLine();
 						
+					}
+					
+					if(type.equals(Page.PageType.TEXT)) {
+						for(int i = 0; i < pageData.length; i++) {
+							pageData[i] = new String(BASE64.decode(pageData[i]));
+						}
+					}
+					Page.Encoding encoding;
+					
+					if(type.equals(Page.PageType.TEXT)) {
+						encoding = Page.Encoding.ASCII;
+					}else {
+						encoding = Page.Encoding.BASE64;
 					}
 					
 					String actualChecksum = getChecksum(pageData);
@@ -213,7 +227,7 @@ public class FDWeb {
 						
 					}
 					
-					return new Page(pageL,Page.PageStatus.SUCCESS);
+					return new Page(pageL,Page.PageStatus.SUCCESS,encoding);
 					
 				}else {
 					continue;
@@ -225,7 +239,7 @@ public class FDWeb {
 
 		}
 
-		return new Page(null, Page.PageStatus.FAILED_UNKNOWN);
+		return new Page(null, Page.PageStatus.FAILED_UNKNOWN,null);
 
 	}
 	

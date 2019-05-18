@@ -3,6 +3,7 @@ package org.thatmadhacker.fdweb;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -26,21 +27,19 @@ public class ChecksumMaker {
 		File page = new File(domainDir,in.nextLine());
 		File pageChecksum = new File(page.getParentFile(),page.getName()+".sum");
 		
-		List<String> pageLines = new ArrayList<String>();
+		byte[] pageB = Files.readAllBytes(page.toPath());
 		
-		Scanner in2 = new Scanner(page);
+		List<String> lines = new ArrayList<String>();
 		
-		while(in2.hasNextLine()) {
-			pageLines.add(in2.nextLine());
+		String s3 = BASE64.encode(pageB);
+		String[] s1 = s3.split("\n");
+		for (String s2 : s1) {
+			lines.add(s2);
 		}
-		
-		pageLines.remove(0);
-		
-		in2.close();
 		
 		String pageS = "";
 		
-		for(String s : pageLines) {
+		for(String s : lines) {
 			pageS += "\n"+s;
 		}
 		

@@ -19,7 +19,7 @@ public class PageRequester {
 		Network network = new Network(new ArrayList<InetAddress>());
 		network.getPeers().add(InetAddress.getByName("localhost"));
 		
-		Page page = FDWeb.requestPage(url, network, cacheDir, true, 86400000);
+		Page page = FDWeb.requestPage(url, network, cacheDir, true, -1,false);
 		
 		for(String line : page.getPage()) {
 			

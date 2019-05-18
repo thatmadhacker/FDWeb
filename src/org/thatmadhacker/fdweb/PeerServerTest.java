@@ -12,7 +12,7 @@ public class PeerServerTest {
 		System.out.print("Cache folder: ");
 		File cacheFolder = new File(in.nextLine());
 		
-		PeerServer.startServer(cacheFolder);
+		PeerServer.startServer(cacheFolder,-1);
 		
 	}
 	

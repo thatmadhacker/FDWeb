@@ -36,6 +36,7 @@ Encoding:base64
 Site:<echo of the page's domain>
 Page:<echo of the page that was requested>
 Status:<status, one of these: NOT_FOUND, REDIRECT, FAILED_UNKNOWN, PEER_ERROR, SUCCESS,BAD_REQUEST>
+Type:<type, one of these: TEXT, BINARY>
 ContentLen:<Page content length in lines>
 <Page content>
 ```
