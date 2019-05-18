@@ -7,7 +7,7 @@ The P2P requests are setup like this:
 ```
 Length:<length of request in lines>
 Version:1.0
-ReqType:<request type (GET, POST)>
+ReqType:<request type (GET, POST,PEERS)>
 Encoding:base64
 Site:<base of url ex: thatmadhacker.org>
 Page:<page of url without the domain at the front ex: /index.html>
